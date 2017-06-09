@@ -1,0 +1,1 @@
+{'rutas':['TEC-San Jose','TEC-Tres Rios'],'horarios':['8:00','9:00']}
