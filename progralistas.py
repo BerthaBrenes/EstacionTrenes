@@ -5,6 +5,22 @@ una calse tren que se encarga de administras los vagones
 una clase vagon que es como el nodo
 """
 from random import randrange
+from threading import Thread
+import time
+archivo_estacion = open('Estacion.txt','r+')
+diccionario = []
+
+"""
+E: Recibe el contenido del archivo txt
+S:lo convierte en un diccionario
+"""
+for linea in archivo_estacion:
+    linea = linea.rstrip("\n")#quita el \n de nueva linea
+    ruta = linea.split(",")#separa el archivo en una lista de rutas
+    diccionario = diccionario + [ruta]
+
+
+    
 """Clase Maquina
 E: -numero de identificacion
    - Capacidad de vagones
@@ -44,6 +60,14 @@ class Tren():
         self.head = None
         self.tail = None
         self.lenght = 0
+    def get_hora(self):
+        return self.hora
+    def reiniciar(self):
+        self.hora = None
+        self.ruta = None
+        self.identificador = None
+    def setear_vagones(self,valor):
+        self.maq = Maquina(self.identificador,valor)
     def mostrar(self):
         print("identificador del tren",self.identificador)
         print("ruta:", self.ruta)
@@ -105,7 +129,7 @@ class Tren():
     def reiniciar(self):# reiniciar el tren es decir borrar los vagones y lo datos de hora y ruta pues ya llego  su destino
         self.ruta = None
         self.hora = None
-        while __len__() != 0:
+        while self.__len__() != 0:
             self.head = None
             self.tail = None
             self.lenght -=1
@@ -116,4 +140,28 @@ class Tren():
             suma = suma + [indice.__str__()]
             indice = indice.next
         return suma
-tren1 = Tren("123","Tucurrique-Tec","9;00am")
+
+trenes = [Tren(diccionario[0][0],diccionario[0][1],diccionario[0][2]),Tren(diccionario[1][0],diccionario[1][1],diccionario[1][2]), Tren(diccionario[2][0],diccionario[2][1],diccionario[2][2]), Tren(diccionario[3][0],diccionario[3][1],diccionario[3][2]), Tren(diccionario[4][0],diccionario[4][1],diccionario[4][2]), Tren(diccionario[5][0],diccionario[5][1],diccionario[5][2])]
+#tren7 = Tren(diccionario[6][0],diccionario[6][1],diccionario[6][2])
+"""
+Funcion para generar la hora de la estacion
+Ademas de que revisa la hora que es para sacar los trenes de la estacion
+"""
+def hora():
+    i = 0
+    global diccionario
+    global archivo_estacion
+    while True:
+        time.sleep(4)
+        i +=1
+        hora = " "+str(i) + ":00pm"
+        print(hora)
+        for a in range(6):
+            if hora == trenes[a].get_hora():
+                trenes[a].reiniciar()
+                print(trenes[a].mostrar())
+    archivo_estacion.close()
+
+a = Thread(target =hora, args =())
+a.start()
+

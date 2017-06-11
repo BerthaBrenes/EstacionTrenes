@@ -1,1 +1,7 @@
-{'rutas':['TEC-San Jose','TEC-Tres Rios'],'horarios':['8:00','9:00']}
+80101,TEC-Alajuela, 11:00pm
+10101,TEC-San Jose, 10:00pm
+40101,TEC-Heredia, 9:00pm
+50101,TEC-Guanacaste, 6:00pm
+60101,TEC-Puntarenas, 7:00pm
+70101,TEC-Limon, 8:00pm
+Vagones-Vacios, 2
