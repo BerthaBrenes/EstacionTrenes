@@ -17,7 +17,7 @@ root.resizable (width=NO,height=NO)
 
 main_canvas = Canvas(root, width=700, height=500)
 basewidth= 700
-image = Image.open("RUTA DE LA IMAGEN")
+image = Image.open("Imagenes/TrenEscala")
 photo= ImageTk.PhotoImage(image)
 lbFondo = Label(root, image=photo)
 lbFondo.place(x=0,y=0)

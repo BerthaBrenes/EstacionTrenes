@@ -61,7 +61,7 @@ def labels():
 ##    fondo1 = cargar_img("Tren.gif")
 ##    contenedor.place(x=0,y= 0)
 ##    contenedor.create_image(250,150, image= fondo1)
-##        
+##
 """Clase Maquina
 E: -numero de identificacion
    - Capacidad de vagones
