@@ -31,8 +31,12 @@ root.title("Prueba imagenes")
 root.minsize(830,700)
 root.resizable(width = NO,height= NO)
 #son dos variables para denotar cuando un vagon salio
+#___Variables globales
 Tren_salida = 0
 Tren_llegada = 0
+Automatico = True
+lista_llegada = [0,1,2,3,4,5]
+lista_salida = []
 #carga las imagenes principales
 tren = cargar_imag("MacroTren.png",(160,187))
 fondo = cargar_imag("EstacionMacro.png",(830,604))
@@ -43,13 +47,11 @@ canvas= Canvas(root,width=825,height=604,bg="dark gray")
 canvas.create_image(410, 300, image=fondo)##posicione, carga la imagen de fondo
 
 def create_fondo():#esta es una funcion para crear un fondo, lo que pasa es que sobrepone la imagen, utilizar para la imafen de llegada
-    canvas.create_image(410, 300, image=fondo)##posiciones, crea la imagen de llegada
+    canvas.create_image(410, 300, image=mapa)##posiciones, crea la imagen de llegada
 def create_mapa():# crea el hilo para cargar la animacion del mapa
     l = 0
-    #while l !=3:# permite que el hilo se genere solo por poquito
     a = Thread(target =hilo_mapa, args =())
     a.start()
-    #l+=1
 
     #canvas.create_image(410,300, image=mapa,tags= "Mapa")##posicione
 def hilo_mapa():# crear la animacion normal de cargar imagenes
@@ -93,6 +95,7 @@ class Maquina:
         self.canvas.create_image(580,90, image=tren,tags =self.num_maquina)
     def salida_maquina(self):#simplemente mueve el canvas para la salida de la maquina
         self.canvas.move(self.num_maquina,-0.98,0.85)
+        self.x_tren = 580
     def move_maquina(self):
         while self.x_tren != 200:# mueve el x hasta que sea igual a 200
             self.x_tren -= 1#controla que la maquina se posiciones en el lugar desado
@@ -111,32 +114,60 @@ class Vagon():
         self.next = next#siguiente
         self.prev = prev#previo
         self.capacidad_pers = cap#capacidad de personas
-        self.i = i#el identificador de cada vagon y su posiciones
+        self.i = i#el identificador de cada vagon y su posiciones, es decir el largo de la lista
         self.tags = tags# el taga de la creacion del vagon
         self.canvas = canvas# el canvas principal
         self.x_pos = 660#la posicion x del vagon
         self.y_pos= 20# la psiicion y del vagon
+        self.s = False
     def __str__(self):
         return self.capacidad_pers
     def crear_vagon(self):#crea el vagon
         self.canvas.create_image(660,20, image=vagon,tags = self.tags+str(self.i))##posiciones
         if self.i == 0:#cuando es el primer vagon
+            print("yo soy el primero",self.tags+str(self.i),str(self.capacidad_pers))
             self.canvas.tag_raise(self.tags,self.tags+str(self.i))# la funcion tag_raise lo que hace es colocar el primer tag por encima del sgundo
             #en este caso pone la maquina primero que el vagon
         else:#crea los demas vagones
             self.canvas.tag_lower(self.tags+str(self.i),self.tags+str(self.i-1))#aqui hace lo contrario y lo hace solo con los vagones
     def quitar_vagon(self):#con esta funcion elimina los vagones
         self.canvas.delete(self.tags+str(self.i))
+
+    def cambiar_pos(self,deseado,actual):
+        print(self.tags+str(deseado))
+        self.canvas.addtag_below(self.tags+str(deseado),self.tags+str(actual))
+        self.canvas.dtag(self.tags+str(deseado),self.tags+str(actual))
+        e = Thread(target=self.mover_atras,args=())
+        e.start()
+        print("soy el nuevo",self.tags+str(deseado))
+
     def salirvagones(self):#mueve el vagon para la salida
         self.canvas.move(self.tags+str(self.i),-0.95,0.83)
+        self.x_pos = 660
     def move_vagon(self):#mueve el vagon en la entrada igual que la otra funcion
+        print("moviendo",self.tags+str(self.i))
         while self.x_pos != (291+(self.i*64)) : #mueve los vagones de forma proporcional a su entrada
             self.x_pos -= 1
             self.canvas.move(self.tags+str(self.i),-0.95,0.83)
             time.sleep(0.01)
+    def mover_atras(self):
+        print("moviedo")
+        while self.x_pos != (100+(self.i*64)) : #mueve los vagones de forma proporcional a su entrada
+            self.x_pos -= 1
+            print(x_pos)
+            self.canvas.move(self.tags+str(self.i),+1,-0.83)
+            time.sleep(0.01)
     def hilo_vagon(self):#inicializa el movimiento
         d = Thread(target= self.move_vagon,args =())
         d.start()
+    def llegada(self):
+        #create_fondo()
+        time.sleep(0.5)
+        global Tren_llegada
+        global Tren_salida
+        Tren_llegada = 0
+        Tren_salida = 0
+
 
 """Clase Tren
 Es la encargada de hacer la maquina y los vagones de acuero a lo que recibe del txt pues el txt es el que le da las instancias
@@ -148,7 +179,7 @@ class Tren():
         self.ruta = ruta
         self.hora_llegada = hora_llegada
         self.hora_salida = hora_salida
-        self.maq = Maquina(self.identificador,random.randrange(1,6))#crea una maquina con un rango aleatorio de vagones
+        self.maq = Maquina(self.identificador,random.randrange(0,9))#crea una maquina con un rango aleatorio de vagones
         self.head = None
         self.tail = None
         self.lenght = 0
@@ -169,14 +200,27 @@ class Tren():
     def __len__(self):# obtiene el largo de la lista
         return self.lenght
     def enganchar_al_inicio(self):#engancha un tren al inicio
-        if self.__len__() > 0 :# caso 1 cuando hay mas de un vagon
-            self.head = Vagon(next = self.head, cap = randrange(1,20),tags =self.maq.num_maquina,i= self.__len__())#llama a crear el vagon y le asigna sus tags
-            self.head.next.prev = self.head
-            self.lenght += 1
-        else:#caso 2 cuadno no hay vagones
-            self.head =Vagon(cap = randrange(20))
-            self.tail = self.head
+        if self.__len__() < int(self.maq.cap_vagones):
+            if self.__len__() > 0 :# caso 1 cuando hay mas de un vagon
+                self.head = Vagon(next = self.head, cap = randrange(1,20),tags =self.maq.num_maquina,i= self.__len__())#llama a crear el vagon y le asigna sus tags
+                self.head.next.prev = self.head
+                self.lenght += 1
+            else:#caso 2 cuadno no hay vagones
+                self.head =Vagon(cap = randrange(20))
+                self.tail = self.head
+                self.lenght +=1
+        else:
+            print("estoy enganchandome mas")
+            self.maq.cap_vagones += 1
+            self.quitar_ele(0)
             self.lenght +=1
+            time.sleep(0.5)
+            self.head = Vagon(next = self.head,cap = randrange(20),tags=str(self.identificador),i = 0)
+            self.head.next.prev = self.head
+            self.head.crear_vagon()
+            self.head.hilo_vagon()
+            self.enganchar_al_final()
+            time.sleep(1)
     def enganchar_al_final(self):
         if self.__len__() < int(self.maq.cap_vagones):
             if self.__len__() > 0 :# caso 1 cuando hay vagones
@@ -205,39 +249,72 @@ class Tren():
             self.tail.hilo_vagon()
 
     def enganchar_al_medio(self):
-        if self.__len__() == 1:#caso 1 cuando solo hay un vagon
-            self.tail = Vagon(prev =self.tail,cap = randrange(20))
-            self.tail.prev.next = self.tail
-            self.lenght +=1
-        elif self.__len__() >= 2:#caso 2 cuando hay mas de dos vagones
-            self.lenght +=1
-            pos = (self.__len__()//2)-1
-            cont = 0
+        if self.__len__() < int(self.maq.cap_vagones):
+            print("esata no es mi condicion")
+            if self.__len__() == 1:#caso 1 cuando solo hay un vagon
+                self.tail = Vagon(prev =self.tail,cap = randrange(20))
+                self.tail.prev.next = self.tail
+                self.lenght +=1
+            elif self.__len__() >= 2:#caso 2 cuando hay mas de dos vagones
+                self.lenght +=1
+                pos = (self.__len__()//2)-1
+                cont = 0
+                indice = self.head
+                while pos >= cont: #mientras contador sea menor a la mitad de la lista
+                    if pos == cont: #cuando este en una posicion anterior
+                        indice.next = Vagon(next = indice.prev,prev = indice.next,cap= randrange(10))
+                        indice.next.next = indice.next.prev
+                    cont +=1
+                    indice = indice.next
+            else:# caso 3 cuando no hay vagones
+                pos = (self.__len__()//2)
+                self.quitar_ele(pos)
+                indice = self.head
+                for i in range(pos):
+                    indice = indice.next
+                indice.next =  Vagon(next = indice.next,prev = indice,cap= randrange(10))
+                indice.next.next.prev = indice.next
+        else:
+            if self.__len__() >2:
+                print("esta es mi condicion")
+                self.maq.cap_vagones += 1
+                pos = (self.__len__()//2)
+                indice = self.head
+                for i in range(1,pos):
+                    indice = indice.next
+                self.quitar_ele(pos)
+                indice.next =  Vagon(next = indice.next,prev = indice,cap= randrange(10),tags=str(self.identificador),i = pos)
+                indice.next.next.prev = indice.next
+                self.lenght +=1
+                indice.next.crear_vagon()
+                indice.next.hilo_vagon()
+                self.enganchar_al_final()
+            else:
+                if self.__len__() == 1:
+                    self.enganchar_al_final()
+                    self.maq.cap_vagones += 1
+                else:
+                    self.maq.cap_vagones += 1
+                    self.quitar_ele(1)
+                    self.enganchar_al_final()
+                    self.enganchar_al_final()
+
+    def quitar_ele(self,ele):
+        if self.__len__()>0:
+            self.lenght -=1
             indice = self.head
-            while pos >= cont: #mientras contador sea menor a la mitad de la lista
-                if pos == cont: #cuando este en una posicion anterior
-                    indice.next = Vagon(next = indice.prev,prev = indice.next,cap= randrange(10))
-                    indice.next.next = indice.next.prev
-                cont +=1
-                indice = indice.next
-        else:# caso 3 cuando no hay vagones
-            self.head =Vagon(cap = randrange(20))
-            self.tail = self.head
-            self.lenght +=1
-    def quitar_vagon(self):# quitar vagones
-        if self.__len__() >0:
-            if self.__len__() == 1:# caso uno cuando hay un solo vagon
-                self.head.quitar_vagon()
-                self.head = None
-                self.tail = None
-                self.lenght -=1
-            else:#caso 2 cuando hay mas de 1 vagon
-                self.tail.quitar_vagon()
-                self.tail = self.tail.prev
-                self.tail.next = None
-                self.lenght -=1
-        else:# cuando no hay vagones
-            return "tren sin vagones"
+            for i in range(ele):
+                indice= indice.next
+            indice.quitar_vagon()
+            if(indice != self.head):
+                indice.prev.next =indice.next
+            else:
+                self.head = indice.next,
+            if(indice != self.tail):
+                indice.next.prev = indice.prev
+            else:
+                self.tail = indice.prev
+
     def hilo_salida(self):# crea el hilo de la salida de la maquina y el vagon
         for a in range(600): #se mueve eesta cantidad
             self.maq.salida_maquina()#mueve la maquina
@@ -248,11 +325,32 @@ class Tren():
             time.sleep(0.01)
         time.sleep(0.5)
         create_mapa()
-
+        self.head.llegada()
+    def hilo_llegada(self):# crea el hilo de la salida de la maquina y el vagon
+        for a in range(600): #se mueve eesta cantidad
+            self.maq.crear_maquina()#mueve la maquina
+            self.maq.hilo_maquina()
+            indice =self.head# igual que en listas recorre la lista para ir moviendo cada uno de los vagones
+            while indice !=None:
+                indice.move_vagon()
+                indice = indice.next
+            time.sleep(0.01)
+        time.sleep(0.5)
     def Salida(self):#genera el hilo de la Salida
+        global lista_llegada
+        global lista_salida
         a = Thread(target = self.hilo_salida,args=())
         a.start()
-
+        lista_salida.append(lista_llegada[0])
+        lista_llegada = lista_llegada[1:]
+    def llegada_Tren(self):
+        global lista_llegada
+        global lista_salida
+        self.maq.crear_maquina
+        a = Thread(target = self.hilo_llegada,args=())
+        a.start()
+        lista_salida.append(lista_llegada[0])
+        lista_llegada = lista_llegada[1:]
     def reiniciar(self):# reiniciar el tren es decir borrar los vagones y lo datos de hora y ruta pues ya llego  su destino
         self.ruta = None
         self.hora = None
@@ -277,6 +375,7 @@ class Tren():
         self.maq.hilo_maquina()
 
 trenes = [Tren(diccionario[0][0],diccionario[0][1],diccionario[0][2],diccionario[0][3]),Tren(diccionario[1][0],diccionario[1][1],diccionario[1][2],diccionario[1][3]), Tren(diccionario[2][0],diccionario[2][1],diccionario[2][2],diccionario[2][3]), Tren(diccionario[3][0],diccionario[3][1],diccionario[3][2],diccionario[3][3]), Tren(diccionario[4][0],diccionario[4][1],diccionario[4][2],diccionario[4][3]), Tren(diccionario[5][0],diccionario[5][1],diccionario[5][2],diccionario[5][3])]
+
 #crea las instancia de la clase trenes
 """
 Funcion para generar la hora de la estacion
@@ -286,7 +385,8 @@ def hora():
     i = 0
     global diccionario
     global archivo_estacion
-    while True:
+    global Automatico
+    while Automatico:
         time.sleep(4)
         i = (i+1)%24# para crear la hora
         hora = " "+str(i) + ":00pm"
@@ -305,16 +405,32 @@ def hora():
                     trenes[a].Salida()
                     print(trenes[a].mostrar())
                     Tren_salida = 1
-    archivo_estacion.close()
-botton_generar = Button(panel_control,text="Vagon Extra",command=trenes[1].enganchar_al_final,bg="gray",fg="white",width=4, height = 1)
+def swith_A():
+    hilo_automatico()
+
+def swith_M():
+    global Automatico
+    Automatico = False
+j = lista_llegada[0]
+botton_generar = Button(panel_control,text="Vagon Extra",command=trenes[j].enganchar_al_final,bg="gray",fg="white",width=4, height = 1)
 botton_generar.place(x=220,y = 30)
-botton_mostrar = Button(panel_control,text="Mostrar",command=trenes[1].mostrar,bg="gray",fg="white",width=4, height = 1)
+botton_mostrar = Button(panel_control,text="Mostrar",command=trenes[j].mostrar,bg="gray",fg="white",width=4, height = 1)
 botton_mostrar.place(x=220,y = 80)
-botton_mostrar = Button(panel_control,text="Dibujar",command=trenes[1].dibuje_tren,bg="gray",fg="white",width=4, height = 1)
+botton_mostrar = Button(panel_control,text="Dibujar",command=trenes[j].dibuje_tren,bg="gray",fg="white",width=4, height = 1)
 botton_mostrar.place(x=200,y = 60)
-botton_mostrar = Button(panel_control,text="Salida",command=trenes[1].Salida,bg="gray",fg="white",width=4, height = 1)
+botton_mostrar = Button(panel_control,text="Salida",command=trenes[j].Salida,bg="gray",fg="white",width=4, height = 1)
 botton_mostrar.place(x=100,y = 60)
+botton_mostrar = Button(panel_control,text="Llegada",command=trenes[j].llegada_Tren,bg="gray",fg="white",width=4, height = 1)
+botton_mostrar.place(x=100,y = 60)
+botton_mostrar = Button(panel_control,text="Manual",command=swith_M,bg="gray",fg="white",width=4, height = 1)
+botton_mostrar.place(x=280,y = 40)
+botton_mostrar = Button(panel_control,text="Automatico",command=swith_A,bg="gray",fg="white",width=4, height = 1)
+botton_mostrar.place(x=260,y = 40)
 #crea el tred de la hora
-a = Thread(target =hora, args =())
-a.start()
+def hilo_automatico():
+    global Automatico
+    Automatico= True
+    a = Thread(target =hora, args =())
+    a.start()
+hilo_automatico()
 root.mainloop()
