@@ -32,11 +32,9 @@ root.minsize(830,700)
 root.resizable(width = NO,height= NO)
 #son dos variables para denotar cuando un vagon salio
 #___Variables globales
-contador = 0
 Tren_salida = 0
 Tren_llegada = 0
 Automatico = True
-Fondo = True
 lista_llegada = [0,1,2,3,4,5]
 lista_salida = []
 #carga las imagenes principales
@@ -44,17 +42,12 @@ tren = cargar_imag("MacroTren.png",(160,187))
 fondo = cargar_imag("EstacionMacro.png",(830,604))
 vagon = cargar_imag("MacroVagon.png",(110,134))
 mapa = cargar_imag("Mapa.gif",(497,494),(830,604))
-fondo_regresar = cargar_imag("EstacionIsometrica2.png",(551,396),(830,604))
 #crear el canvas principal
 canvas= Canvas(root,width=825,height=604,bg="dark gray")
 canvas.create_image(410, 300, image=fondo)##posicione, carga la imagen de fondo
 
 def create_fondo():#esta es una funcion para crear un fondo, lo que pasa es que sobrepone la imagen, utilizar para la imafen de llegada
-    canvas.create_image(410, 300, image=fondo)##posiciones, crea la imagen de llegada
-def create_fondo_regre():#esta es una funcion para crear un fondo, lo que pasa es que sobrepone la imagen, utilizar para la imafen de llegada
-    global Fondo
-    Fondo = False
-    canvas.create_image(410, 300, image=fondo_regresar)##posiciones, crea la imagen de llegada
+    canvas.create_image(410, 300, image=mapa)##posiciones, crea la imagen de llegada
 def create_mapa():# crea el hilo para cargar la animacion del mapa
     l = 0
     a = Thread(target =hilo_mapa, args =())
@@ -67,7 +60,6 @@ def hilo_mapa():# crear la animacion normal de cargar imagenes
         canvas.create_image(410, 300,image = imagen2)
         time.sleep(0.5)
     time.sleep(0.5)
-
 #coloca el canvas total en el espacion
 canvas.place(x=0,y=0)
 #crea el canvas del panel de control
@@ -108,6 +100,7 @@ class Maquina:
         while self.x_tren != 200:# mueve el x hasta que sea igual a 200
             self.x_tren -= 1#controla que la maquina se posiciones en el lugar desado
             self.canvas.move(self.num_maquina,-0.98,0.85)
+            time.sleep(0.01)
     def hilo_maquina(self):#crea el hilo que mueve la maquina
         d = Thread(target= self.move_maquina,args =())
         d.start()
@@ -168,6 +161,13 @@ class Vagon():
     def hilo_vagon(self):#inicializa el movimiento
         d = Thread(target= self.move_vagon,args =())
         d.start()
+    def llegada(self):
+        #create_fondo()
+        time.sleep(0.5)
+        global Tren_llegada
+        global Tren_salida
+        Tren_llegada = 0
+        Tren_salida = 0
 
 
 """Clase Tren
@@ -180,7 +180,7 @@ class Tren():
         self.ruta = ruta
         self.hora_llegada = hora_llegada
         self.hora_salida = hora_salida
-        self.maq = Maquina(self.identificador,random.randrange(1,6))#crea una maquina con un rango aleatorio de vagones
+        self.maq = Maquina(self.identificador,random.randrange(1,9))#crea una maquina con un rango aleatorio de vagones
         self.head = None
         self.tail = None
         self.lenght = 0
@@ -221,7 +221,7 @@ class Tren():
             self.head.crear_vagon()
             self.head.hilo_vagon()
             self.enganchar_al_final()
-            time.sleep(0.5)
+            time.sleep(1)
     def enganchar_al_final(self):
         if self.__len__() < int(self.maq.cap_vagones):
             if self.__len__() > 0 :# caso 1 cuando hay vagones
@@ -246,9 +246,9 @@ class Tren():
             self.tail.prev.next = self.tail
             self.lenght +=1
             self.tail.crear_vagon()
-            time.sleep(0.05)
-
+            time.sleep(0.5)
             self.tail.hilo_vagon()
+
     def enganchar_al_medio(self):
         if self.__len__() < int(self.maq.cap_vagones):
             print("esata no es mi condicion")
@@ -308,34 +308,26 @@ class Tren():
                 indice= indice.next
             indice.quitar_vagon()
             if(indice != self.head):
-                indice.prev.next = indice.next
+                indice.prev.next =indice.next
             else:
                 self.head = indice.next,
             if(indice != self.tail):
                 indice.next.prev = indice.prev
             else:
                 self.tail = indice.prev
-    def llegada_variables(self):# para Manual
-        create_fondo()
-        global Tren_llegada
-        global Tren_salida
-        Tren_llegada = 0
-        Tren_salida = 0
+
     def hilo_salida(self):# crea el hilo de la salida de la maquina y el vagon
-        global Automatico
         for a in range(300*self.__len__()): #se mueve eesta cantidad
             self.maq.salida_maquina()#mueve la maquina
-            indice = self.head# igual que en listas recorre la lista para ir moviendo cada uno de los vagones
+            indice =self.head# igual que en listas recorre la lista para ir moviendo cada uno de los vagones
             while indice !=None:
                 indice.salirvagones()
                 indice = indice.next
+            time.sleep(0.01)
+        time.sleep(0.5)
         create_mapa()
-        if self.head == None:
-            print("soy nula")
-        if Automatico == False:
-            self.llegada_variables()
+        self.head.llegada()
     def hilo_llegada(self):# crea el hilo de la salida de la maquina y el vagon
-        create_fondo_regre()
         self.maq.crear_maquina()
         self.maq.hilo_maquina()
         indice = self.head
@@ -343,35 +335,31 @@ class Tren():
             indice.crear_vagon()
             indice.hilo_vagon()
             indice = indice.next
+        time.sleep(0.5)
 
-
+        #for a in range(600): #se mueve eesta cantida
+            #indice =self.head# igual que en listas recorre la lista para ir moviendo cada uno de los vagones
+            #while indice !=None:
+                #indice.crear_vagon()
+                #indice.llegarvagones()
+                #indice = indice.next
+            #time.sleep(0.01)
+        #time.sleep(0.5)
     def Salida(self):#genera el hilo de la Salida
         global lista_llegada
         global lista_salida
-        global Automatico
-        global contador
         a = Thread(target = self.hilo_salida,args=())
         a.start()
-        if Automatico == False:
-            print (contador)
-
-            if contador == 0 :
-                lista_salida.append(lista_llegada[0])
-                print("soy", lista_llegada[0])
-                lista_llegada = lista_llegada[1:]
-                print("estoycambiando en salisa a", lista_llegada[0])
-                contador += 1
-            else:
-                contador=0
+        lista_salida.append(lista_llegada[0])
+        lista_llegada = lista_llegada[1:]
     def llegada_Tren(self):
         global lista_llegada
         global lista_salida
         self.hilo_llegada()
         #a = Thread(target = self.hilo_llegada,args=())
         #a.start()
-        lista_llegada.append(lista_salida[0])
-        lista_salida = lista_salida[1:]
-
+        lista_salida.append(lista_llegada[0])
+        lista_llegada = lista_llegada[1:]
     def reiniciar(self):# reiniciar el tren es decir borrar los vagones y lo datos de hora y ruta pues ya llego  su destino
         self.ruta = None
         self.hora = None
@@ -408,34 +396,24 @@ def hora():
     global archivo_estacion
     global Automatico
     while Automatico:
+        time.sleep(4)
+        i = (i+1)%24# para crear la hora
+        hora = " "+str(i) + ":00pm"
+        print(hora)
         global Tren_salida
         global Tren_llegada
-        global lista_llegada
-        for a in (lista_llegada):
-            hora = 0
-            Tren_salida =0
-            while Tren_salida != 2 and Automatico:
-                print(a)
-                if hora == trenes[a].get_hora_llegado():
-                    if Tren_llegada == 0:
-                        trenes[a].dibuje_tren()
-                        print(trenes[a].mostrar())
-                        Tren_llegada = 1
-                    if Tren_llegada == 1:
-                        trenes[a].llegada_Tren()
-                        print(trenes[a].mostrar)
-                        Tren_llegada = 0
+        for a in range(6):
+            if hora == trenes[a].get_hora_llegado():
+                if Tren_llegada == 0:
+                    trenes[a].dibuje_tren()
+                    print(trenes[a].mostrar())
+                    Tren_llegada = 1
 
-                if hora == trenes[a].get_hora_salida():
-                    if Tren_salida >= 0:
-                        trenes[a].Salida()
-                        print(trenes[a].mostrar())
-                        Tren_salida += 1
-
-                i = (i+1)%24# para crear la hora
-                hora = " "+str(i) + ":00pm"
-                time.sleep(4)
-                print(hora)
+            if hora == trenes[a].get_hora_salida():
+                if Tren_salida == 0:
+                    trenes[a].Salida()
+                    print(trenes[a].mostrar())
+                    Tren_salida = 1
 def swith_A():
     hilo_automatico()
 
@@ -443,47 +421,44 @@ def swith_M():
     global Automatico
     Automatico = False
 
-def accionBotonExtra():
-    global lista_llegada
-    j = lista_llegada[0]
-    trenes[j].enganchar_al_final()
+def cargarImagenBoton(nombre,tamaño):
+    im = pygame.image.load("Imagenes/Botones/"+str(nombre)+".jpg")
+    pic = pygame.image.tostring(im, 'RGB')
+    image= Image.frombytes('RGB', tamaño, pic)
+    tkimage= ImageTk.PhotoImage(image)
+    return tkimage
 
-def accionBotonMostrar():
-    global lista_llegada
-    j = lista_llegada[0]
-    trenes[j].mostrar()
+j = lista_llegada[0]
 
-def accionBotonDibujar():
-    global lista_llegada
-    j = lista_llegada[0]
-    print(j)
-    trenes[j].dibuje_tren()
+Boton1 = cargarImagenBoton("button1",(64,64)) 
+botton_tren = Button(panel_control,image=Boton1,command=trenes[j].dibuje_tren,bd=0,bg="Black")
+botton_tren.place(x=20,y = 15)
+Boton6 = cargarImagenBoton("button6",(64,64))
+botton_principio = Button(panel_control,image=Boton6,command=trenes[j].enganchar_al_inicio,bd=0,bg="Black")
+botton_principio.place(x=120,y = 15)
+Boton5 = cargarImagenBoton("button5",(64,64))
+botton_final = Button(panel_control,image=Boton5,command=trenes[j].enganchar_al_final,bd=0,bg="Black")
+botton_final.place(x=320,y = 15)
+Boton7 = cargarImagenBoton("button7",(64,64))
+botton_medio = Button(panel_control,image=Boton7,command=trenes[j].enganchar_al_medio,bd=0,bg="Black")
+botton_medio.place(x=220,y = 15)
+Boton3 = cargarImagenBoton("button3",(64,64))
+botton_salida = Button(panel_control,image=Boton3,command=trenes[j].Salida,bd=0,bg="Black")
+botton_salida.place(x=420,y = 15)
+Boton4 = cargarImagenBoton("button4",(64,64))
+botton_entrada = Button(panel_control,image=Boton4,command=trenes[j].llegada_Tren,bd=0,bg="Black")
+botton_entrada.place(x=520,y = 15)
+Boton8 = cargarImagenBoton("button8",(64,64))
+botton_manual = Button(panel_control,image=Boton8,command=swith_M,bd=0,bg="Black")
+botton_manual.place(x=620,y = 15)
+Boton9 = cargarImagenBoton("button9",(64,64))                        
+botton_automatico = Button(panel_control,image=Boton9,command=swith_A,bd=0,bg="Black")
+botton_automatico.place(x=720,y = 15)
 
-def accionBotonSalida():
-    global lista_llegada
-    j = lista_llegada[0]
-    trenes[j].Salida()
-
-def accionBotonLlegada():
-    global lista_salida
-    j = lista_salida[0]
-    trenes[j].llegada_Tren()
-
-
-botton_generar = Button(panel_control,text="Vagon Extra",command=accionBotonExtra,bg="gray",fg="white",width=4, height = 1)
-botton_generar.place(x=220,y = 30)
-botton_mostrar = Button(panel_control,text="Mostrar",command=accionBotonMostrar,bg="gray",fg="white",width=4, height = 1)
+botton_mostrar = Button(panel_control,text="Mostrar",command=trenes[j].mostrar,bg="gray",fg="white",width=4, height = 1)
 botton_mostrar.place(x=220,y = 80)
-botton_mostrar = Button(panel_control,text="Dibujar",command=accionBotonDibujar,bg="gray",fg="white",width=4, height = 1)
-botton_mostrar.place(x=200,y = 60)
-botton_mostrar = Button(panel_control,text="Salida",command=accionBotonSalida,bg="gray",fg="white",width=4, height = 1)
-botton_mostrar.place(x=100,y = 60)
-botton_mostrar = Button(panel_control,text="Llegada",command=accionBotonLlegada,bg="gray",fg="white",width=4, height = 1)
-botton_mostrar.place(x=230,y = 50)
-botton_mostrar = Button(panel_control,text="Manual",command=swith_M,bg="gray",fg="white",width=4, height = 1)
-botton_mostrar.place(x=280,y = 40)
-botton_mostrar = Button(panel_control,text="Automatico",command=swith_A,bg="gray",fg="white",width=4, height = 1)
-botton_mostrar.place(x=260,y = 40)
+
+
 #crea el tred de la hora
 def hilo_automatico():
     global Automatico
