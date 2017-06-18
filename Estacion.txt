@@ -1,7 +1,7 @@
-80101,TEC-Alajuela, 11:00pm
-10101,TEC-San Jose, 10:00pm
-40101,TEC-Heredia, 9:00pm
-50101,TEC-Guanacaste, 6:00pm
-60101,TEC-Puntarenas, 7:00pm
-70101,TEC-Limon, 8:00pm
+T80101,TEC-Alajuela, 16:00pm, 17:00pm
+T10101,TEC-San Jose, 14:00pm, 15:00pm
+T40101,TEC-Heredia, 12:00pm, 13:00pm
+T50101,TEC-Guanacaste, 6:00pm, 7:00pm
+T60101,TEC-Puntarenas, 8:00pm, 9:00pm
+T70101,TEC-Limon, 10:00pm, 11:00pm
 Vagones-Vacios, 2

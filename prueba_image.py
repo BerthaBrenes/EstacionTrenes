@@ -1,115 +1,48 @@
-"""Listas de 3 proyecto de progra
-Consiste en 3 objetos
-una clase padre que administra la cantidad de trenes
-una calse tren que se encarga de administras los vagones
-una clase vagon que es como el nodo
-"""
 from random import randrange
+from tkinter import*
 from threading import Thread
-import time
-from tkinter import *
-from tkinter import messagebox
-from tkinter import Toplevel
 import threading
 from PIL import Image
 import PIL
 from PIL import ImageTk
 import pygame
+import time
 
-def load_img(nombre,tamaño):
-    im2 = pygame.image.load("Imagenes/"+str(nombre))
-    pic2 = pygame.image.tostring(im2, 'RGBA')
-    image2= Image.frombytes('RGBA', tamaño, pic2)
-    return image2
-def load1_img(nombre,tamaño):
+pygame.init()
+
+def cargar_imag(nombre,tamaño):
     im = pygame.image.load("Imagenes/"+str(nombre))
-    pic = pygame.image.tostring(im, 'RGB')
-    image= Image.frombytes('RGB', tamaño, pic)
-    return image
-
-
-
-
-naveIMG = load_img("TrenEscala.png",(293,343))
-fondo_img = load_img("EstacionLight.jpg",(550,401))
-vagon_img= load_img("VagonEscala.png",(202,243))
-
-
-
-
-
+    pic = pygame.image.tostring(im, 'RGBA')
+    image= Image.frombytes('RGBA', tamaño, pic)
+    tkimage= ImageTk.PhotoImage(image)
+    return tkimage
 
 archivo_estacion = open('Estacion.txt','r+')
 diccionario = []
-#        ........................
-#......./confi ventana_principal
-root = Tk()
-root.title("Estacion de Trenes")
-root.minsize(550,480)
-root.resizable(width = NO, height = NO)
 
-#carga de imagenes
-######################################
-tkimage1= ImageTk.PhotoImage(naveIMG)
-######################################
-tkimage2 = ImageTk.PhotoImage(fondo_img)
-######################################
-tkimage3= ImageTk.PhotoImage(vagon_img)
+root=Tk()
+root.title("Prueba imagenes")
+root.minsize(830,700)
+root.resizable(width = NO,height= NO)
+
 flag_tren = True
 flag_vagon = True
-x_pos =200
-y_pos=-168
-x_tren =390
-y_tren = -250
 
-#Label_fondo = Label(root,image =fondo_img,width = 550, height = 500,bg = "gray")
-#Label_fondo.place(x=0,y=-55)
-Label_fondo = Canvas(root,width = 550, height = 500)
-Label_fondo.create_image(275,200,image =tkimage2)
-Label_fondo.place(x=0,y=0)
 
-#Label_vagon = Label(root,image = vagon_img,width =202, height = 243,bg="white")
-#Label_vagon.place(x=x_tren,y=y_tren)
-Label_vagon = Canvas(root,width =202, height = 243)
-Label_vagon.create_image(x_tren-287,y_tren+373,image = tkimage3)
-Label_vagon.place(x=0,y=0)#0,0
+tren = cargar_imag("MacroTren.png",(160,187))
+fondo = cargar_imag("EstacionMacro.png",(830,604))
+vagon = cargar_imag("MacroVagon.png",(110,134))
 
-#Label_img = Label(root,image = naveIMG,width =290, height = 343,bg="white")
-#Label_img.place(x=x_pos,y=y_pos)
-Label_img = Canvas(root,width =290, height = 343)
-Label_img.create_image(x_pos-55,y_pos+341,image =tkimage1)
-Label_img.place(x=0,y=0)
+canvas= Canvas(root,width=825,height=604,bg="dark gray")
+canvas.create_image(410, 300, image=fondo)##posiciones
 
-panel_control = Canvas(root,width = 550,height=100,bg = "black")
-panel_control.place(x= 0,y = 380)
-def move_maquina():
-    global flag_tren
-    global x_pos
-    global y_pos
-    while flag_tren:
-        x_pos -= 1
-        y_pos += 1
-        if x_pos < -100:
-            flag_tren = False
-        print(x_pos)
-        Label_img.place(x=x_pos,y= y_pos)
-def move_vagon():
-    global flag_vagon
-    global x_tren
-    global y_tren
-    while flag_vagon:
-        x_tren -= 1
-        y_tren += 1
-        if x_tren < 100:
-            flag_vagon = False
-        print(x_tren)
-        Label_vagon.place(x=x_tren,y = y_tren)
-def mover_1vagon():
-    c = Thread(target= move_maquina,args =())
-    c.start()
-def mover_2vagon():
-    d = Thread(target= move_vagon,args =())
-    d.start()
+def create_fondo():
+    canvas.create_image(410, 300, image=fondo)##posiciones
+canvas.place(x=0,y=0)
+panel_control = Canvas(root,width = 830,height=100,bg = "black")
+panel_control.place(x= 0,y = 600)
+
+
 """
 E: Recibe el contenido del archivo txt
 S:lo convierte en un diccionario
@@ -129,23 +62,82 @@ class Maquina:
     def __init__(self,num,cap):
         self.num_maquina = num
         self.cap_vagones = cap
+        self.canvas = canvas
+        self.x_tren = 580
+        self.y_tren = 90
     def capacidad_vagones(self):
         return self.cap_vagones
     def mostrar_maquina(self):
         return("numero de maquina",self.num_maquina)
+    def crear_maquina(self):
+        print(self.num_maquina)
+        self.canvas.create_image(580,90, image=tren,tags =self.num_maquina)
+    def move_maquina(self):
+        global flag_tren
+        self.x_tren
+        self.y_tren
+        while flag_tren :
+            self.x_tren -= 1
+            self.y_tren += 1
+            #self.canvas.canvasy(self.y_tren, gridspacing=None)
+            #self.canvas.canvasx(self.x_tren, gridspacing=None)
+            #print(self.x_tren)
+            self.canvas.move(self.num_maquina,-0.98,0.85)
+            if(self.x_tren <= 200):
+                flag_tren = False
+            time.sleep(0.01)
+    def hilo_maquina(self):
+        d = Thread(target= self.move_maquina,args =( ))
+        d.start()
 """Clase Vagon
 E: son los nodos de la lista doblemente enlazada, tiene un vaagon anterior
 y un vagpn siguiente
 S:el valor de la capacidad de personas por Vagon
 """
 class Vagon():
-    def __init__(self, next = None,prev = None,cap= None):
+    def __init__(self, next = None,prev = None,cap= None,tags = None):
         self.next = next
         self.prev = prev
         self.capacidad_pers = cap
         self.num_vagon = None
+        self.tags = tags
+        self.canvas = canvas
+        self.x_pos = 660
+        self.y_pos= 20
+        self.maq1 = None
     def __str__(self):
         return self.capacidad_pers
+    def vagon1(self,mq):
+        self.maq1 = mq
+    def crear_vagon(self,i):
+        self.canvas.create_image(660,20, image=vagon,tags = self.tags+str(i))##posiciones
+        if i == 1:
+            #print("primero")
+            print("primero=",str(i))
+            self.canvas.tag_raise(self.maq1,self.tags+str(i))
+        else:
+            print("segundos=",str(i))
+            self.canvas.tag_lower(self.tags+str(i),self.tags+str(i-1))
+    def quita_vagon(self,i):
+        self.canvas.delete(self.tags+str(i))
+    def move_vagon(self,i):
+        flag_vagon = True
+        self.x_pos
+        self.y_pos
+        while flag_vagon :
+            self.x_pos -= 1
+            self.y_pos += 1
+            #print(self.x_pos)
+            self.canvas.move(self.tags+str(i),-0.95,0.83)
+            if(self.x_pos <= (227+(i*64))):
+                flag_vagon = False
+            time.sleep(0.01)
+    def hilo_vagon(self,i):
+        d = Thread(target= self.move_vagon,args =(i,))
+        d.start()
+
+
+
 """Clase Tren
 E: numero de identificacion
     ruta y hora que debe realizar
@@ -156,7 +148,7 @@ class Tren():
         self.identificador = num
         self.ruta = ruta
         self.hora = hora
-        self.maq = Maquina(self.identificador,randrange(1,8))
+        self.maq = Maquina(self.identificador,1)
         self.head = None
         self.tail = None
         self.lenght = 0
@@ -189,17 +181,32 @@ class Tren():
     def enganchar_al_final(self):
         if self.__len__() < int(self.maq.cap_vagones):
             if self.__len__() > 0 :# caso 1 cuando hay vagones
-                self.tail = Vagon(prev =self.tail,cap = randrange(20))
+                self.tail = Vagon(prev =self.tail,cap = randrange(20),tags="Vagon")
                 self.tail.prev.next = self.tail
                 self.lenght +=1
-                mover_2vagon()
+                self.tail.crear_vagon((self.__len__()))
+                time.sleep(0.5)
+                self.tail.hilo_vagon((self.__len__()))
+
+                #self.tail.mover_2vagon()
             else: #caso 2 cuando no hay vagones
-                self.head =Vagon(cap = randrange(20))
+                self.head =Vagon(cap = randrange(20),tags="Vagon")
                 self.tail = self.head
                 self.lenght +=1
-                mover_1vagon()
+                self.tail.vagon1(self.maq.num_maquina)
+                self.tail.crear_vagon((self.__len__()))
+                time.sleep(0.5)
+                self.tail.hilo_vagon((self.__len__()))
+
         else:
-            print("No se pueden agregar mas vagones")
+            self.maq.cap_vagones += 1
+            self.tail = Vagon(prev =self.tail,cap = randrange(20),tags="Vagon")
+            self.tail.prev.next = self.tail
+            self.lenght +=1
+            self.tail.crear_vagon((self.__len__()))
+            time.sleep(0.5)
+            self.tail.hilo_vagon((self.__len__()))
+
     def enganchar_al_medio(self):
         if self.__len__() == 1:#caso 1 cuando solo hay un vagon
             self.tail = Vagon(prev =self.tail,cap = randrange(20))
@@ -223,10 +230,12 @@ class Tren():
     def quitar_vagon(self):# quitar vagones
         if self.__len__() >0:
             if self.__len__() == 1:# caso uno cuando hay un solo vagon
+                self.head.quitar_vagon(self__len__())
                 self.head = None
                 self.tail = None
                 self.lenght -=1
             else:#caso 2 cuando hay mas de 1 vagon
+                self.tail.quitar_vagon(self__len__())
                 self.tail = self.tail.prev
                 self.tail.next = None
                 self.lenght -=1
@@ -235,6 +244,7 @@ class Tren():
     def reiniciar(self):# reiniciar el tren es decir borrar los vagones y lo datos de hora y ruta pues ya llego  su destino
         self.ruta = None
         self.hora = None
+        create_fondo()
         while self.__len__() != 0:
             self.head = None
             self.tail = None
@@ -246,6 +256,12 @@ class Tren():
             suma = suma + [indice.__str__()]
             indice = indice.next
         return suma
+    def dibuje_tren(self):
+        self.maq.crear_maquina()
+        time.sleep(0.5)
+        self.maq.hilo_maquina()
+        for i in range(int(self.maq.cap_vagones)):
+            self.enganchar_al_final()
 
 trenes = [Tren(diccionario[0][0],diccionario[0][1],diccionario[0][2]),Tren(diccionario[1][0],diccionario[1][1],diccionario[1][2]), Tren(diccionario[2][0],diccionario[2][1],diccionario[2][2]), Tren(diccionario[3][0],diccionario[3][1],diccionario[3][2]), Tren(diccionario[4][0],diccionario[4][1],diccionario[4][2]), Tren(diccionario[5][0],diccionario[5][1],diccionario[5][2])]
 #tren7 = Tren(diccionario[6][0],diccionario[6][1],diccionario[6][2])
@@ -271,6 +287,9 @@ botton_generar = Button(panel_control,text="Vagon Extra",command=trenes[1].engan
 botton_generar.place(x=220,y = 30)
 botton_mostrar = Button(panel_control,text="Mostrar",command=trenes[1].mostrar,bg="gray",fg="white",width=4, height = 1)
 botton_mostrar.place(x=220,y = 60)
+botton_mostrar = Button(panel_control,text="Borrar",command=trenes[1].dibuje_tren,bg="gray",fg="white",width=4, height = 1)
+botton_mostrar.place(x=200,y = 60)
+
 #a = Thread(target =hora, args =())
 #a.start()
 root.mainloop()
