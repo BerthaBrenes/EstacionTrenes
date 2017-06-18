@@ -118,7 +118,6 @@ class Vagon():
         self.tags = tags# el taga de la creacion del vagon
         self.canvas = canvas# el canvas principal
         self.x_pos = 660#la posicion x del vagon
-        self.y_pos= 20# la psiicion y del vagon
         self.s = False
     def __str__(self):
         return self.capacidad_pers
@@ -144,6 +143,8 @@ class Vagon():
     def salirvagones(self):#mueve el vagon para la salida
         self.canvas.move(self.tags+str(self.i),-0.95,0.83)
         self.x_pos = 660
+    def llegarvagones(self):
+        self.canvas.move(self.tags+str(self.i),-0.95,0.83)
     def move_vagon(self):#mueve el vagon en la entrada igual que la otra funcion
         print("moviendo",self.tags+str(self.i))
         while self.x_pos != (291+(self.i*64)) : #mueve los vagones de forma proporcional a su entrada
@@ -179,7 +180,7 @@ class Tren():
         self.ruta = ruta
         self.hora_llegada = hora_llegada
         self.hora_salida = hora_salida
-        self.maq = Maquina(self.identificador,random.randrange(0,9))#crea una maquina con un rango aleatorio de vagones
+        self.maq = Maquina(self.identificador,random.randrange(1,9))#crea una maquina con un rango aleatorio de vagones
         self.head = None
         self.tail = None
         self.lenght = 0
@@ -316,7 +317,7 @@ class Tren():
                 self.tail = indice.prev
 
     def hilo_salida(self):# crea el hilo de la salida de la maquina y el vagon
-        for a in range(600): #se mueve eesta cantidad
+        for a in range(300*self.__len__()): #se mueve eesta cantidad
             self.maq.salida_maquina()#mueve la maquina
             indice =self.head# igual que en listas recorre la lista para ir moviendo cada uno de los vagones
             while indice !=None:
@@ -327,15 +328,23 @@ class Tren():
         create_mapa()
         self.head.llegada()
     def hilo_llegada(self):# crea el hilo de la salida de la maquina y el vagon
-        for a in range(600): #se mueve eesta cantidad
-            self.maq.crear_maquina()#mueve la maquina
-            self.maq.hilo_maquina()
-            indice =self.head# igual que en listas recorre la lista para ir moviendo cada uno de los vagones
-            while indice !=None:
-                indice.move_vagon()
-                indice = indice.next
-            time.sleep(0.01)
+        self.maq.crear_maquina()
+        self.maq.hilo_maquina()
+        indice = self.head
+        while indice != None:
+            indice.crear_vagon()
+            indice.hilo_vagon()
+            indice = indice.next
         time.sleep(0.5)
+
+        #for a in range(600): #se mueve eesta cantida
+            #indice =self.head# igual que en listas recorre la lista para ir moviendo cada uno de los vagones
+            #while indice !=None:
+                #indice.crear_vagon()
+                #indice.llegarvagones()
+                #indice = indice.next
+            #time.sleep(0.01)
+        #time.sleep(0.5)
     def Salida(self):#genera el hilo de la Salida
         global lista_llegada
         global lista_salida
@@ -346,9 +355,9 @@ class Tren():
     def llegada_Tren(self):
         global lista_llegada
         global lista_salida
-        self.maq.crear_maquina
-        a = Thread(target = self.hilo_llegada,args=())
-        a.start()
+        self.hilo_llegada()
+        #a = Thread(target = self.hilo_llegada,args=())
+        #a.start()
         lista_salida.append(lista_llegada[0])
         lista_llegada = lista_llegada[1:]
     def reiniciar(self):# reiniciar el tren es decir borrar los vagones y lo datos de hora y ruta pues ya llego  su destino
@@ -421,7 +430,7 @@ botton_mostrar.place(x=200,y = 60)
 botton_mostrar = Button(panel_control,text="Salida",command=trenes[j].Salida,bg="gray",fg="white",width=4, height = 1)
 botton_mostrar.place(x=100,y = 60)
 botton_mostrar = Button(panel_control,text="Llegada",command=trenes[j].llegada_Tren,bg="gray",fg="white",width=4, height = 1)
-botton_mostrar.place(x=100,y = 60)
+botton_mostrar.place(x=230,y = 50)
 botton_mostrar = Button(panel_control,text="Manual",command=swith_M,bg="gray",fg="white",width=4, height = 1)
 botton_mostrar.place(x=280,y = 40)
 botton_mostrar = Button(panel_control,text="Automatico",command=swith_A,bg="gray",fg="white",width=4, height = 1)
