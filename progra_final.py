@@ -70,9 +70,10 @@ def create_mapa():# crea el hilo para cargar la animacion del mapa
 
     #canvas.create_image(410,300, image=mapa,tags= "Mapa")##posicione
 def hilo_mapa():# crear la animacion normal de cargar imagenes
-    for i in range(4):
-        imagen2 = cargar_imag("eva_ad" + str(i) +".gif",(504,299))
-        canvas.create_image(410, 300,image = imagen2)
+    for i in range(15):
+        imagen2 = cargar_imag("M" + str(i) +".png",(398,396),(410, 300))
+        canvas.create_image(410, 300,image = imagen2,tags = "Mapa")
+        canvas.tag_raise("Vagon","Mapa")
         time.sleep(0.5)
     time.sleep(0.5)
 
@@ -104,8 +105,6 @@ class Maquina:
         self.x_tren = 580
     def capacidad_vagones(self):
         return self.cap_vagones#debuelve la capacidad de vagones
-    def mostrar_maquina(self):
-        return("numero de maquina",self.num_maquina)
     def crear_maquina(self):# este metodo crea una maquina es decir una cabeza del tren
         print(self.num_maquina)
         self.canvas.create_image(580,90, image=tren,tags =self.num_maquina)
@@ -116,6 +115,7 @@ class Maquina:
         while self.x_tren != 200:# mueve el x hasta que sea igual a 200
             self.x_tren -= 1#controla que la maquina se posiciones en el lugar desado
             self.canvas.move(self.num_maquina,-0.98,0.85)
+        time.sleep(0.001)
     def hilo_maquina(self):#crea el hilo que mueve la maquina
         d = Thread(target= self.move_maquina,args =())
         d.start()
@@ -138,23 +138,15 @@ class Vagon():
         return self.capacidad_pers
     def crear_vagon(self):#crea el vagon
         self.canvas.create_image(660,20, image=vagon,tags = self.tags+str(self.i))##posiciones
+        self.canvas.addtag_withtag("Vagon",self.tags+str(self.i))
         if self.i == 0:#cuando es el primer vagon
-            print("yo soy el primero",self.tags+str(self.i),str(self.capacidad_pers))
+            #print("yo soy el primero",self.tags+str(self.i),str(self.capacidad_pers))
             self.canvas.tag_raise(self.tags,self.tags+str(self.i))# la funcion tag_raise lo que hace es colocar el primer tag por encima del sgundo
             #en este caso pone la maquina primero que el vagon
         else:#crea los demas vagones
             self.canvas.tag_lower(self.tags+str(self.i),self.tags+str(self.i-1))#aqui hace lo contrario y lo hace solo con los vagones
     def quitar_vagon(self):#con esta funcion elimina los vagones
         self.canvas.delete(self.tags+str(self.i))
-
-    def cambiar_pos(self,deseado,actual):
-        print(self.tags+str(deseado))
-        self.canvas.addtag_below(self.tags+str(deseado),self.tags+str(actual))
-        self.canvas.dtag(self.tags+str(deseado),self.tags+str(actual))
-        e = Thread(target=self.mover_atras,args=())
-        e.start()
-        print("soy el nuevo",self.tags+str(deseado))
-
     def salirvagones(self):#mueve el vagon para la salida
         self.canvas.move(self.tags+str(self.i),-0.95,0.83)
         self.x_pos = 660
@@ -165,14 +157,7 @@ class Vagon():
         while self.x_pos != (291+(self.i*64)) : #mueve los vagones de forma proporcional a su entrada
             self.x_pos -= 1
             self.canvas.move(self.tags+str(self.i),-0.95,0.83)
-            time.sleep(0.01)
-    def mover_atras(self):
-        print("moviedo")
-        while self.x_pos != (100+(self.i*64)) : #mueve los vagones de forma proporcional a su entrada
-            self.x_pos -= 1
-            print(x_pos)
-            self.canvas.move(self.tags+str(self.i),+1,-0.83)
-            time.sleep(0.01)
+        time.sleep(0.001)
     def hilo_vagon(self):#inicializa el movimiento
         d = Thread(target= self.move_vagon,args =())
         d.start()
@@ -188,7 +173,7 @@ class Tren():
         self.ruta = ruta
         self.hora_llegada = hora_llegada
         self.hora_salida = hora_salida
-        self.maq = Maquina(self.identificador,1)#random.randrange(1,6))#crea una maquina con un rango aleatorio de vagones
+        self.maq = Maquina(self.identificador,random.randrange(1,6))#crea una maquina con un rango aleatorio de vagones
         self.head = None
         self.tail = None
         self.llegada_A=0
@@ -242,8 +227,6 @@ class Tren():
             self.tail.crear_vagon() #crea el vagon con todo y la maquina
             time.sleep(0.5)
             self.tail.hilo_vagon() #lo alinea todod
-
-
     def enganchar_al_medio(self):
         if self.__len__() >2:
             print("esta es mi condicion")
@@ -289,7 +272,7 @@ class Tren():
                 self.tail = indice.prev
     def hilo_salida(self):# crea el hilo de la salida de la maquina y el vagon
         global Automatico
-        for a in range(300*self.__len__()): #se mueve eesta cantidad
+        for a in range(500*self.__len__()): #se mueve eesta cantidad
             self.maq.salida_maquina()#mueve la maquina
             indice = self.head# igual que en listas recorre la lista para ir moviendo cada uno de los vagones
             while indice !=None:
@@ -407,17 +390,17 @@ def swith_M():
 def accion_enganchar_final():
     global lista_llegada
     j = lista_llegada[0]
-    if self.trenes[j].__len__() <=6:
+    if trenes[j].__len__() <=6:
         trenes[j].enganchar_al_final()
 def accion_enganchar_inicio():
     global lista_llegada
     j = lista_llegada[0]
-    if self.trenes[j].__len__() <=6:
+    if trenes[j].__len__() <=6:
         trenes[j].enganchar_al_inicio()
 def accion_enganchar_medio():
     global lista_llegada
     j = lista_llegada[0]
-    if self.trenes[j].__len__() <=6:
+    if trenes[j].__len__() <=6:
         trenes[j].enganchar_al_medio()
 
 def accionBotonMostrar():
@@ -440,7 +423,15 @@ def accionBotonLlegada():
     global lista_salida
     j = lista_salida[0]
     trenes[j].llegada_Tren()
-
+def mostrar():
+    global lista_llegada
+    global lista_salida
+    j = lista_llegada[0]
+    l = lista_salida[0]
+    if len(lista_salida) != 0:
+        trenes[l].mostrar()
+    if len(lista_llegada) !=0:
+        trenes[j].mostrar()
 
 botton_generar = Button(panel_control,image =Boton6,command=accion_enganchar_inicio,bg="gray",bd=0)
 botton_generar.place(x=120,y = 15)
