@@ -1,7 +1,7 @@
-T50101,TEC-Guanacaste, 6:00pm, 8:00pm
-T60101,TEC-Puntarenas, 9:00pm, 11:00pm
-T40101,TEC-Heredia, 13:00pm, 15:00pm
-T70101,TEC-Limon, 16:00pm, 18:00pm
-T10101,TEC-San Jose, 19:00pm, 21:00pm
-T80101,TEC-Alajuela, 22:00pm, 23:00pm
+T50101,TEC-Guanacaste, 6:00, 8:00
+T60101,TEC-Puntarenas, 9:00, 11:00
+T40101,TEC-Heredia, 13:00, 15:00
+T70101,TEC-Limon, 16:00, 18:00
+T10101,TEC-San Jose, 19:00, 21:00
+T80101,TEC-Alajuela, 22:00, 23:00
 Vagones-Vacios, 2

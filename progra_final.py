@@ -29,7 +29,7 @@ diccionario = []#esta lista va a contener la informacion del archivo
 #inicializa la Gui
 root=Tk()
 root.title("Prueba imagenes")
-root.minsize(830,700)
+root.minsize(830,730)
 root.resizable(width = NO,height= NO)
 #son dos variables para denotar cuando un vagon salio
 #___Variables globales
@@ -45,6 +45,7 @@ vagon = cargar_imag("MacroVagon.png",(110,134))
 mapa = cargar_imag("Mapa.gif",(497,494),(830,604))
 fondo_regresar = cargar_imag("EstacionIsometrica2.png",(551,396),(830,604))
 Boton1 = cargar_imag("button1.jpg",(64,64))
+Boton2 = cargar_imag("button2.jpg",(64,64))
 Boton3 = cargar_imag("button3.jpg",(64,64))
 Boton4 = cargar_imag("button4.jpg",(64,64))
 Boton5 = cargar_imag("button5.jpg",(64,64))
@@ -193,8 +194,8 @@ class Tren():
         print("num de maquina:",self.maq.num_maquina)
         print("capacidad de vagones:",self.maq.cap_vagones)
         print("Capacidad de personas:",self.printL())
-        fichaP= Label(panel_control, text = "Identificador del tren",str(self.identificador)"\nRutas ="str(self.ruta)" Hora de llegada:",self.hora_llegada" \nHora de salida:",self.hora_salida"\nCapacidad de vagones:",self.maq.cap_vagones"\nCapacidad de personas:",self.printL(), bg ="white")
-        fichaP.place(x =0, y=0)
+        #fichaP= Label(panel_control, text = "Identificador del tren"+str(self.identificador)+"\nRutas =" +str(self.ruta)+"\nHora de llegada:"+str(self.hora_llegada)+" \nHora de salida:"+str(self.hora_salida)+"\nCapacidad de vagones:"+str(self.maq.cap_vagones)+"\nCapacidad de personas:"+str(self.printL()),font=("Helvetica",8), bg ="white",fg="Black")
+        #fichaP.place(x =640, y=5)
     def __len__(self):# obtiene el largo de la lista
         return self.lenght
     def enganchar_al_inicio(self):#engancha un tren al inicio
@@ -318,7 +319,7 @@ class Tren():
         self.hilo_llegada()
         lista_llegada.append(lista_salida[0])
         lista_salida = lista_salida[1:]
-        self.reiniciar()
+        #self.reiniciar()
     def reiniciar(self):# reiniciar el tren es decir borrar los vagones y lo datos de hora y ruta pues ya llego  su destino
         self.ruta = None
         self.hora = None
@@ -358,7 +359,7 @@ def hora():
         global lista_llegada
         hora = 0
         i = (i+1)%24# para crear la hora
-        hora = " "+str(i) + ":00pm"
+        hora = " "+str(i) + ":00"
         time.sleep(4)
         print(hora)
         for a in range(6):
@@ -388,22 +389,35 @@ def swith_A():
 def swith_M():
     global Automatico
     Automatico = False
+def quitar_vagon():
+    global Automatico
+    if Automatico == False:
+        global lista_llegada
+        j = lista_llegada[0]
+        if trenes[j].__len__() <=6:
+            trenes[j].quitar_ele(trenes[j].__len__()-1)
 
 def accion_enganchar_final():
-    global lista_llegada
-    j = lista_llegada[0]
-    if trenes[j].__len__() <=6:
-        trenes[j].enganchar_al_final()
+    global Automatico
+    if Automatico== False:
+        global lista_llegada
+        j = lista_llegada[0]
+        if trenes[j].__len__() <=6:
+            trenes[j].enganchar_al_final()
 def accion_enganchar_inicio():
-    global lista_llegada
-    j = lista_llegada[0]
-    if trenes[j].__len__() <=6:
-        trenes[j].enganchar_al_inicio()
+    global Automatico
+    if Automatico ==False:
+        global lista_llegada
+        j = lista_llegada[0]
+        if trenes[j].__len__() <=6:
+            trenes[j].enganchar_al_inicio()
 def accion_enganchar_medio():
-    global lista_llegada
-    j = lista_llegada[0]
-    if trenes[j].__len__() <=6:
-        trenes[j].enganchar_al_medio()
+    global Automatico
+    if Automatico == False:
+        global lista_llegada
+        j = lista_llegada[0]
+        if trenes[j].__len__() <=6:
+            trenes[j].enganchar_al_medio()
 
 def accionBotonMostrar():
     global lista_llegada
@@ -411,48 +425,48 @@ def accionBotonMostrar():
     trenes[j].mostrar()
 
 def accionBotonDibujar():
-    global lista_llegada
-    j = lista_llegada[0]
-    print(j)
-    trenes[j].dibuje_tren()
+    global Automatico
+    if Automatico== False:
+        global lista_llegada
+        j = lista_llegada[0]
+        print(j)
+        trenes[j].dibuje_tren()
 
 def accionBotonSalida():
-    global lista_llegada
-    j = lista_llegada[0]
-    trenes[j].Salida()
+    global Automatico
+    if Automatico == False:
+        global lista_llegada
+        j = lista_llegada[0]
+        trenes[j].Salida()
 
 def accionBotonLlegada():
-    global lista_salida
-    j = lista_salida[0]
-    trenes[j].llegada_Tren()
-def mostrar():
-    global lista_llegada
-    global lista_salida
-    if len(lista_salida) != 0:
-        l = lista_salida[0]
-        trenes[l].mostrar()
-    if len(lista_llegada) !=0:
-        j = lista_llegada[0]
-        trenes[j].mostrar()
+    global Automatico
+    if Automatico== False:
+        global lista_salida
+        j = lista_salida[0]
+        trenes[j].llegada_Tren()
+
 
 botton_generar = Button(panel_control,image =Boton6,command=accion_enganchar_inicio,bg="gray",bd=0)
-botton_generar.place(x=120,y = 15)
-botton_mostrar = Button(panel_control,text="Mostrar",command=accionBotonMostrar,bg="gray",bd=0)
-botton_mostrar.place(x=220,y = 60)
+botton_generar.place(x=80,y = 20)
+#botton_mostrar = Button(panel_control,text="Mostrar",command=accionBotonMostrar,bg="gray",bd=0)
+#botton_mostrar.place(x=220,y = 60)
 botton_generar = Button(panel_control,image =Boton5,command=accion_enganchar_final,bg="gray",bd=0)
-botton_generar.place(x=320,y = 15)
+botton_generar.place(x=220,y = 20)
 botton_generar = Button(panel_control,image =Boton7,command=accion_enganchar_medio,bg="gray",bd=0)
-botton_generar.place(x=220,y = 15)
+botton_generar.place(x=150,y = 20)
 botton_mostrar = Button(panel_control,image = Boton1,command=accionBotonDibujar,bg="gray",bd=0)
-botton_mostrar.place(x=20,y = 15)
+botton_mostrar.place(x=10,y = 20)
 botton_mostrar = Button(panel_control,image=Boton3,command=accionBotonSalida,bg="gray",bd=0)
-botton_mostrar.place(x=420,y = 15)
+botton_mostrar.place(x=290,y = 20)
 botton_mostrar = Button(panel_control,image=Boton4,command=accionBotonLlegada,bg="gray",bd=0)
-botton_mostrar.place(x=520,y = 15)
+botton_mostrar.place(x=360,y = 20)
 botton_mostrar = Button(panel_control,image=Boton8,command=swith_M,bg="gray",bd=0)
-botton_mostrar.place(x=620,y = 15)
+botton_mostrar.place(x=430,y = 20)
+botton_mostrar = Button(panel_control,image=Boton2,command=quitar_vagon,bg="gray",bd=0)
+botton_mostrar.place(x=570,y = 20)
 botton_mostrar = Button(panel_control,image=Boton9,command=swith_A,bg="gray",bd=0)
-botton_mostrar.place(x=720,y = 15)
+botton_mostrar.place(x=500,y = 20)
 #crea el tred de la hora
 def hilo_automatico():
     global Automatico
