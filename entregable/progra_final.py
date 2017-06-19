@@ -72,7 +72,7 @@ def create_mapa():# crea el hilo para cargar la animacion del mapa
 def hilo_mapa():# crear la animacion normal de cargar imagenes
     for i in range(15):
         imagen2 = cargar_imag("M" + str(i) +".png",(398,396),(410, 300))
-        canvas.create_image(610, 500,image = imagen2,tags = "Mapa")
+        canvas.create_image(410, 300,image = imagen2,tags = "Mapa")
         canvas.tag_raise("Vagon","Mapa")
         time.sleep(0.5)
     time.sleep(0.5)
@@ -193,8 +193,6 @@ class Tren():
         print("num de maquina:",self.maq.num_maquina)
         print("capacidad de vagones:",self.maq.cap_vagones)
         print("Capacidad de personas:",self.printL())
-        fichaP= Label(panel_control, text = "Identificador del tren",str(self.identificador)"\nRutas ="str(self.ruta)" Hora de llegada:",self.hora_llegada" \nHora de salida:",self.hora_salida"\nCapacidad de vagones:",self.maq.cap_vagones"\nCapacidad de personas:",self.printL(), bg ="white")
-        fichaP.place(x =0, y=0)
     def __len__(self):# obtiene el largo de la lista
         return self.lenght
     def enganchar_al_inicio(self):#engancha un tren al inicio
@@ -318,11 +316,11 @@ class Tren():
         self.hilo_llegada()
         lista_llegada.append(lista_salida[0])
         lista_salida = lista_salida[1:]
-        self.reiniciar()
+
     def reiniciar(self):# reiniciar el tren es decir borrar los vagones y lo datos de hora y ruta pues ya llego  su destino
         self.ruta = None
         self.hora = None
-        self.head.capacidad_pers = 0
+        create_fondo()
         while self.__len__() != 0:
             self.tail.quitar_vagon(self.__len__())
             self.head = None
@@ -428,11 +426,11 @@ def accionBotonLlegada():
 def mostrar():
     global lista_llegada
     global lista_salida
+    j = lista_llegada[0]
+    l = lista_salida[0]
     if len(lista_salida) != 0:
-        l = lista_salida[0]
         trenes[l].mostrar()
     if len(lista_llegada) !=0:
-        j = lista_llegada[0]
         trenes[j].mostrar()
 
 botton_generar = Button(panel_control,image =Boton6,command=accion_enganchar_inicio,bg="gray",bd=0)
