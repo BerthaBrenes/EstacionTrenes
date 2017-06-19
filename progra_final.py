@@ -388,6 +388,11 @@ def swith_A():
 def swith_M():
     global Automatico
     Automatico = False
+def quitar_vagon():
+    global lista_llegada
+    j = lista_llegada[0]
+    if trenes[j].__len__() <=6:
+        trenes[j].quitar_ele(trenes[j].__len__()-1)
 
 def accion_enganchar_final():
     global lista_llegada
