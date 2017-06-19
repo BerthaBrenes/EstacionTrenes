@@ -389,26 +389,34 @@ def swith_M():
     global Automatico
     Automatico = False
 def quitar_vagon():
-    global lista_llegada
-    j = lista_llegada[0]
-    if trenes[j].__len__() <=6:
-        trenes[j].quitar_ele(trenes[j].__len__()-1)
+    global Automatico
+    if Automatico == False:
+        global lista_llegada
+        j = lista_llegada[0]
+        if trenes[j].__len__() <=6:
+            trenes[j].quitar_ele(trenes[j].__len__()-1)
 
 def accion_enganchar_final():
-    global lista_llegada
-    j = lista_llegada[0]
-    if trenes[j].__len__() <=6:
-        trenes[j].enganchar_al_final()
+    global Automatico
+    if Automatico== False:
+        global lista_llegada
+        j = lista_llegada[0]
+        if trenes[j].__len__() <=6:
+            trenes[j].enganchar_al_final()
 def accion_enganchar_inicio():
-    global lista_llegada
-    j = lista_llegada[0]
-    if trenes[j].__len__() <=6:
-        trenes[j].enganchar_al_inicio()
+    global Automatico
+    if Automatico ==False:
+        global lista_llegada
+        j = lista_llegada[0]
+        if trenes[j].__len__() <=6:
+            trenes[j].enganchar_al_inicio()
 def accion_enganchar_medio():
-    global lista_llegada
-    j = lista_llegada[0]
-    if trenes[j].__len__() <=6:
-        trenes[j].enganchar_al_medio()
+    global Automatico
+    if Automatico == False:
+        global lista_llegada
+        j = lista_llegada[0]
+        if trenes[j].__len__() <=6:
+            trenes[j].enganchar_al_medio()
 
 def accionBotonMostrar():
     global lista_llegada
@@ -416,29 +424,27 @@ def accionBotonMostrar():
     trenes[j].mostrar()
 
 def accionBotonDibujar():
-    global lista_llegada
-    j = lista_llegada[0]
-    print(j)
-    trenes[j].dibuje_tren()
+    global Automatico
+    if Automatico== False:
+        global lista_llegada
+        j = lista_llegada[0]
+        print(j)
+        trenes[j].dibuje_tren()
 
 def accionBotonSalida():
-    global lista_llegada
-    j = lista_llegada[0]
-    trenes[j].Salida()
+    global Automatico
+    if Automatico= False:
+        global lista_llegada
+        j = lista_llegada[0]
+        trenes[j].Salida()
 
 def accionBotonLlegada():
-    global lista_salida
-    j = lista_salida[0]
-    trenes[j].llegada_Tren()
-def mostrar():
-    global lista_llegada
-    global lista_salida
-    if len(lista_salida) != 0:
-        l = lista_salida[0]
-        trenes[l].mostrar()
-    if len(lista_llegada) !=0:
-        j = lista_llegada[0]
-        trenes[j].mostrar()
+    global Automatico
+    if Automatico= False:
+        global lista_salida
+        j = lista_salida[0]
+        trenes[j].llegada_Tren()
+
 
 botton_generar = Button(panel_control,image =Boton6,command=accion_enganchar_inicio,bg="gray",bd=0)
 botton_generar.place(x=120,y = 15)
